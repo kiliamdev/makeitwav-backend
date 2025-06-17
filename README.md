@@ -16,11 +16,13 @@ Ideal for music producers, DJs, or casual users who want to extract clean audio 
 
 ---
 
-## 🛠️ Requirements
+## 🌐 Try it live
 
-- `yt-dlp` (automatically installed in Docker)
-- `ffmpeg` (automatically installed in Docker)
-- Node.js v18+ (for local use)
+You can try the frontend at:
+
+👉 [https://makeitwav-vercel.app](https://makeitwav-vercel.app)
+
+Enter a YouTube link and convert it to `.wav` directly in your browser.
 
 ---
 
@@ -29,7 +31,6 @@ Ideal for music producers, DJs, or casual users who want to extract clean audio 
 ### `POST /convert`
 
 **Request body (JSON):**
-
 ```json
 {
   "url": "https://www.youtube.com/watch?v=EXAMPLE_ID"
