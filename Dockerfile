@@ -24,3 +24,6 @@ EXPOSE 3000
 
 # Start the server
 CMD ["node", "server.js"]
+
+# Copy cookies.txt
+COPY cookies.txt /app/cookies.txt
