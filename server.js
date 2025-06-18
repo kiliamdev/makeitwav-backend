@@ -34,6 +34,3 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-
-const fs = require('fs');
-console.log('COOKIES:', fs.existsSync('/app/cookies.txt'));
