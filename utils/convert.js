@@ -9,7 +9,8 @@ const TEMP_DIR = path.join(__dirname, '..', 'temp');
 
 function convertYouTubeToWav(url) {
   return new Promise((resolve, reject) => {
-    const command = `yt-dlp --cookies /app/cookies.txt -x --audio-format wav -o "${TEMP_DIR}/%(title).%(ext)s" "${url}"`;
+    const command = `yt-dlp --cookies /app/cookies.txt -x --audio-format wav -o "${TEMP_DIR}/%(title)s.%(ext)s" "${url}"`;
+
 
     exec(command, (error, stdout, stderr) => {
       if (error) {
