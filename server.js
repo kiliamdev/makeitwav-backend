@@ -1,4 +1,5 @@
 // server.js
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -10,9 +11,20 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use('/temp', express.static(path.join(__dirname, 'temp')));
+app.use('/temp', express.static(path.join(__dirname, 'temp'))); // fallback statikus útvonal
 
-// POST /convert
+// ✅ ÚJ: letöltő endpoint
+app.get('/download/:filename', (req, res) => {
+  const filePath = path.join(__dirname, 'temp', req.params.filename);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('File not found');
+  }
+
+  res.download(filePath); // ez triggereli a letöltést a böngészőben
+});
+
+// ✅ POST /convert
 app.post('/convert', async (req, res) => {
   const { url } = req.body;
 
@@ -22,7 +34,7 @@ app.post('/convert', async (req, res) => {
 
   try {
     const filename = await convertYouTubeToWav(url);
-    const fileUrl = `${req.protocol}://${req.get('host')}/temp/${filename}`;
+    const fileUrl = `${req.protocol}://${req.get('host')}/download/${encodeURIComponent(filename)}`;
     res.json({ success: true, url: fileUrl });
   } catch (error) {
     console.error(error);
@@ -33,4 +45,3 @@ app.post('/convert', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-

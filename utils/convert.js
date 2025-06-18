@@ -9,11 +9,7 @@ const TEMP_DIR = path.join(__dirname, '..', 'temp');
 
 function convertYouTubeToWav(url) {
   return new Promise((resolve, reject) => {
-    const id = uuidv4();
-    const outputPath = path.join(TEMP_DIR, `${id}.wav`);
-
-    // ✅ Használjuk a YouTube cookie fájlt a hitelesített letöltéshez
-    const command = `yt-dlp --cookies /app/cookies.txt -x --audio-format wav -o "${TEMP_DIR}/%(id)s.%(ext)s" "${url}"`;
+    const command = `yt-dlp --cookies /app/cookies.txt -x --audio-format wav -o "${TEMP_DIR}/%(title).%(ext)s" "${url}"`;
 
     exec(command, (error, stdout, stderr) => {
       if (error) {
@@ -21,7 +17,7 @@ function convertYouTubeToWav(url) {
         return reject(stderr);
       }
 
-      // Késleltetés a fájl elkészüléséhez
+      // Késleltetés, hogy biztosan elkészüljön a fájl
       setTimeout(() => {
         const files = fs.readdirSync(TEMP_DIR).filter(f => f.endsWith('.wav'));
         const newest = files.sort((a, b) => {
@@ -30,12 +26,12 @@ function convertYouTubeToWav(url) {
 
         if (!newest) return reject('No output file found');
 
-        // Törlés időzítése 5 perc múlva
+        // Törlés időzítése (5 perc után)
         setTimeout(() => {
           fs.unlink(path.join(TEMP_DIR, newest), () => {});
         }, 5 * 60 * 1000);
 
-        resolve(newest);
+        resolve(newest); // itt már a videó címe a fájlnév!
       }, 2000);
     });
   });
