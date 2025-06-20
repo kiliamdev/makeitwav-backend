@@ -1,39 +1,47 @@
-// utils/convert.js
-
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const slugify = require('slugify');
 
 const TEMP_DIR = path.join(__dirname, '..', 'temp');
 
 function convertYouTubeToWav(url) {
   return new Promise((resolve, reject) => {
-    const command = `yt-dlp --cookies /app/cookies.txt -x --audio-format wav -o "${TEMP_DIR}/%(title)s.%(ext)s" "${url}"`;
+    const id = uuidv4();
 
+    // Alapértelmezett fájlnév slugify-val → a letöltés után ezt fogjuk keresni
+    const ytCommand = `yt-dlp --cookies /app/cookies.txt --print "%(title)s" --no-playlist "${url}"`;
 
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.error('yt-dlp error:', stderr);
-        return reject(stderr);
+    exec(ytCommand, (titleErr, rawTitle) => {
+      if (titleErr || !rawTitle) {
+        return reject('Failed to retrieve title');
       }
 
-      // Késleltetés, hogy biztosan elkészüljön a fájl
-      setTimeout(() => {
-        const files = fs.readdirSync(TEMP_DIR).filter(f => f.endsWith('.wav'));
-        const newest = files.sort((a, b) => {
-          return fs.statSync(path.join(TEMP_DIR, b)).mtime - fs.statSync(path.join(TEMP_DIR, a)).mtime;
-        })[0];
+      const title = slugify(rawTitle.trim(), { strict: true });
+      const outputPath = path.join(TEMP_DIR, `${title}.wav`);
 
-        if (!newest) return reject('No output file found');
+      const command = `yt-dlp --cookies /app/cookies.txt -x --audio-format wav -o "${outputPath}" "${url}"`;
 
-        // Törlés időzítése (5 perc után)
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          return reject(stderr);
+        }
+
+        // Ellenőrizzük, hogy a fájl valóban létrejött
         setTimeout(() => {
-          fs.unlink(path.join(TEMP_DIR, newest), () => {});
-        }, 5 * 60 * 1000);
+          if (!fs.existsSync(outputPath)) {
+            return reject('No output file found');
+          }
 
-        resolve(newest); // itt már a videó címe a fájlnév!
-      }, 2000);
+          // Törlés időzítése 5 perc múlva
+          setTimeout(() => {
+            fs.unlink(outputPath, () => {});
+          }, 5 * 60 * 1000);
+
+          resolve(path.basename(outputPath));
+        }, 2000);
+      });
     });
   });
 }
