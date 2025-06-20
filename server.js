@@ -21,8 +21,8 @@ app.get('/download/:filename', (req, res) => {
     return res.status(404).send('File not found');
   }
 
-  res.setHeader('Content-Type', 'audio/wav');
-  res.setHeader('Content-Disposition', `attachment; filename="${req.params.filename}"`);
+  res.setHeader('Content-Disposition', `attachment; filename="${title}"`);
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
   res.sendFile(filePath);
 });
 
