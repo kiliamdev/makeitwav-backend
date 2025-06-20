@@ -1,6 +1,7 @@
 // server.js
 
 const express = require('express');
+app.set('trust proxy', 1);
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
