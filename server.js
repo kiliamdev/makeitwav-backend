@@ -21,8 +21,11 @@ app.get('/download/:filename', (req, res) => {
     return res.status(404).send('File not found');
   }
 
-  res.download(filePath); // ez triggereli a letöltést a böngészőben
+  res.setHeader('Content-Type', 'audio/wav');
+  res.setHeader('Content-Disposition', `attachment; filename="${req.params.filename}"`);
+  res.sendFile(filePath);
 });
+
 
 // ✅ POST /convert
 app.post('/convert', async (req, res) => {
