@@ -21,6 +21,9 @@ app.get('/download/:filename', (req, res) => {
     return res.status(404).send('File not found');
   }
 
+  const fileName = req.params.filename;
+  const title = decodeURIComponent(fileName);
+
   res.setHeader('Content-Disposition', `attachment; filename="${title}"`);
   res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
   res.sendFile(filePath);
