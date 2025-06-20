@@ -1,7 +1,4 @@
-// server.js
-
 const express = require('express');
-app.set('trust proxy', 1);
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
@@ -10,30 +7,12 @@ const { convertYouTubeToWav } = require('./utils/convert');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1); // hogy a req.protocol helyesen https legyen Render-en
 app.use(cors());
 app.use(express.json());
-app.use('/temp', express.static(path.join(__dirname, 'temp'))); // fallback statikus útvonal
+app.use('/temp', express.static(path.join(__dirname, 'temp')));
 
-// ✅ ÚJ: letöltő endpoint
-app.get('/download/:filename', (req, res) => {
-  const fileName = req.params.filename;
-  const filePath = path.join(__dirname, 'temp', fileName);
-  const title = decodeURIComponent(fileName);
-
-  if (fs.existsSync(filePath)) {
-    res.setHeader('Content-Type', 'audio/wav');
-    res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(title)}`);
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-    res.sendFile(filePath);
-  } else {
-    res.status(404).json({ error: 'File not found' });
-  }
-});
-
-
-
-// ✅ POST /convert
+// POST /convert
 app.post('/convert', async (req, res) => {
   const { url } = req.body;
 
@@ -43,7 +22,7 @@ app.post('/convert', async (req, res) => {
 
   try {
     const filename = await convertYouTubeToWav(url);
-    const fileUrl = `${req.protocol}://${req.get('host')}/download/${encodeURIComponent(filename)}`;
+    const fileUrl = `https://makeitwav-backend.onrender.com/temp/${filename}`;
     res.json({ success: true, url: fileUrl });
   } catch (error) {
     console.error(error);
