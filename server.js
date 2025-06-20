@@ -17,10 +17,12 @@ app.use('/temp', express.static(path.join(__dirname, 'temp'))); // fallback stat
 app.get('/download/:filename', (req, res) => {
   const fileName = req.params.filename;
   const filePath = path.join(__dirname, 'temp', fileName);
-  const title = decodeURIComponent(fileName); // fix: cím kiemelése
+  const title = decodeURIComponent(fileName);
 
   if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'audio/wav');
     res.setHeader('Content-Disposition', `attachment; filename="${title}"`);
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
     res.sendFile(filePath);
   } else {
