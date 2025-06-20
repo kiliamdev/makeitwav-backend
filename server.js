@@ -21,7 +21,7 @@ app.get('/download/:filename', (req, res) => {
 
   if (fs.existsSync(filePath)) {
     res.setHeader('Content-Type', 'audio/wav');
-    res.setHeader('Content-Disposition', `attachment; filename="${title}"`);
+    res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(title)}`);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
     res.sendFile(filePath);
@@ -29,6 +29,7 @@ app.get('/download/:filename', (req, res) => {
     res.status(404).json({ error: 'File not found' });
   }
 });
+
 
 
 // ✅ POST /convert
