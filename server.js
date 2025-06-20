@@ -15,18 +15,17 @@ app.use('/temp', express.static(path.join(__dirname, 'temp'))); // fallback stat
 
 // ✅ ÚJ: letöltő endpoint
 app.get('/download/:filename', (req, res) => {
-  const filePath = path.join(__dirname, 'temp', req.params.filename);
-
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).send('File not found');
-  }
-
   const fileName = req.params.filename;
-  const title = decodeURIComponent(fileName);
+  const filePath = path.join(__dirname, 'temp', fileName);
+  const title = decodeURIComponent(fileName); // fix: cím kiemelése
 
-  res.setHeader('Content-Disposition', `attachment; filename="${title}"`);
-  res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-  res.sendFile(filePath);
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Disposition', `attachment; filename="${title}"`);
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ error: 'File not found' });
+  }
 });
 
 
